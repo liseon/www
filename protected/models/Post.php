@@ -50,7 +50,7 @@ class Post extends CActiveRecord
 			array('title, content, status', 'required'),
 			array('title', 'length', 'max'=>128),
 			array('status', 'in', 'range'=>array(1,2,3)),
-			array('tags', 'match', 'pattern'=>'/^[\w\s,]+$/',
+			array('tags', 'match', 'pattern'=>'/^[\w\s,а-яА-Я]+$/ui',
 				'message'=>'В тегах можно использовать только буквы.'),
 			array('tags', 'normalizeTags'),
 	 
@@ -136,6 +136,37 @@ class Post extends CActiveRecord
 	public function normalizeTags($attribute,$params)
 	{
 		$this->tags=Tag::array2string(array_unique(Tag::string2array($this->tags)));
+	}
+	
+	protected function beforeSave()
+	{
+		if(parent::beforeSave())
+		{
+			if($this->isNewRecord)
+			{
+				$this->create_time=$this->update_time=time();
+				$this->author_id=Yii::app()->user->id;
+			}
+			else
+				$this->update_time=time();
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	protected function afterSave()
+	{
+		parent::afterSave();
+		Tag::model()->updateFrequency($this->_oldTags, $this->tags);
+	}
+	 
+	private $_oldTags;
+	 
+	protected function afterFind()
+	{
+		parent::afterFind();
+		$this->_oldTags=$this->tags;
 	}
 	
 
