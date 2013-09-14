@@ -11,6 +11,8 @@ return array(
 
 	// preloading 'log' component
 	'preload'=>array('log'),
+	
+	'defaultController'=>'post',
 
 	// autoloading model and component classes
 	'import'=>array(
@@ -33,27 +35,42 @@ return array(
 
 	// application components
 	'components'=>array(
+		'cache'=>array(
+            'class'=>'CDbCache',
+        ),
+		 'log'=>array(
+            'class'=>'CLogRouter',
+            'routes'=>array(
+                array(
+                    'class'=>'CFileLogRoute',
+                    'levels'=>'error, warning',
+                ),
+            ),
+        ),
 		'user'=>array(
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
 		),
 		// uncomment the following to enable URLs in path-format
-		/*
+		
 		'urlManager'=>array(
-			'urlFormat'=>'path',
-			'rules'=>array(
-				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
-				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
-				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
-			),
-		),
-		*/
+            'urlFormat'=>'path',
+            'rules'=>array(
+                'post/<id:\d+>/<title:.*?>'=>'post/view',
+                'posts/<tag:.*?>'=>'post/index',
+                'post/update/<id:\d+>'=>'post/update',
+                '<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
+            ),
+        ),
+		
 		// 'db'=>array(
 			// 'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 		// ),
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
+			'class'=>'system.db.CDbConnection',
+			'schemaCachingDuration'=>3600,
 			'connectionString' => 'mysql:host=localhost;dbname=yii_blog',
 			'emulatePrepare' => true,
 			'username' => 'yii_blog',
