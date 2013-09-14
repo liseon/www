@@ -8,8 +8,10 @@ class TagCloud extends CPortlet
 	public $maxTags=20;
 
 	protected function renderContent()
-	{
+	{ 
 		$tags=Tag::model()->findTagWeights($this->maxTags);
+		
+		echo "TEST!";
 
 		foreach($tags as $tag=>$weight)
 		{

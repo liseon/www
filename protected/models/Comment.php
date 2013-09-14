@@ -126,4 +126,45 @@ class Comment extends CActiveRecord
 		else
 			return false;
 	}
+	
+	/**
+	 * @return integer the number of comments that are pending approval
+	 */
+	public function getPendingCommentCount()
+	{
+		return $this->count('status='.self::STATUS_PENDING);
+	}
+	
+	public function findRecentComments($limit=10)
+    {
+        return $this->with('post')->findAll(array(
+            'condition'=>'t.status='.self::STATUS_APPROVED,
+            'order'=>'t.create_time DESC',
+            'limit'=>$limit,
+        ));
+    }
+	
+	/**
+	 * @return string the hyperlink display for the current comment's author
+	 */
+	public function getAuthorLink()
+	{
+		if(!empty($this->url))
+			return CHtml::link(CHtml::encode($this->author),$this->url);
+		else
+			return CHtml::encode($this->author);
+	}
+	
+		/**
+	 * @param Post the post that this comment belongs to. If null, the method
+	 * will query for the post.
+	 * @return string the permalink URL for this comment
+	 */
+	public function getUrl($post=null)
+	{
+		if($post===null)
+			$post=$this->post;
+		return $post->url.'#c'.$this->id;
+	}
+
 }
